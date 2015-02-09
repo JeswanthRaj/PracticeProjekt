@@ -9,13 +9,13 @@ public class JdbcDao {
 
 	public static Connection getConnection(){
 		
-		String driver="";
-		String url="";
+		String driver = "com.mysql.jdbc.Driver";
+		String url = "jdbc:mysql://localhost:3306/DB";
 		Connection con=null;
 		
 		try {
 			Class.forName(driver);
-			con= DriverManager.getConnection(url);
+			con= DriverManager.getConnection(url,"root","");
 			return con;
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
