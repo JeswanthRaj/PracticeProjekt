@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -23,6 +24,8 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONArray;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.jms.projekt.dao.JdbcDao;
 import com.jms.projekt.model.Element;
@@ -43,7 +46,9 @@ public class ProjektServiceJdbcBean {
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			con = JdbcDao.getConnection();
+			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+			DataSource ds = (DataSource)context.getBean("dataSource");
+			con=ds.getConnection();
 			String sql = "SELECT * FROM ELEMENT";
 			ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -81,7 +86,9 @@ public class ProjektServiceJdbcBean {
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			con = JdbcDao.getConnection();
+			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+			DataSource ds = (DataSource)context.getBean("dataSource");
+			con=ds.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
@@ -122,7 +129,9 @@ public class ProjektServiceJdbcBean {
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			con = JdbcDao.getConnection();
+			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+			DataSource ds = (DataSource)context.getBean("dataSource");
+			con=ds.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID BETWEEN ? AND ?";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, from);
@@ -164,7 +173,9 @@ public class ProjektServiceJdbcBean {
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			con = JdbcDao.getConnection();
+			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+			DataSource ds = (DataSource)context.getBean("dataSource");
+			con=ds.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_NAME = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, name);
@@ -206,7 +217,10 @@ public class ProjektServiceJdbcBean {
 		try {
 			Element element = jObj.readValue(request, Element.class);
 
-			con = JdbcDao.getConnection();
+			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+			DataSource ds = (DataSource)context.getBean("dataSource");
+			con=ds.getConnection();
+			
 			String sql = "INSERT INTO ELEMENT (ELEMENT_ID,ELEMENT_NAME,ELEMENT_TYPE,ELEMENT_VALUE,LUD) VALUES (?,?,?,?,CURRENT_TIMESTAMP)";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, element.getElementId());
@@ -248,7 +262,9 @@ public class ProjektServiceJdbcBean {
 			try {
 				Element element = jObj.readValue(request, Element.class);
 
-				con = JdbcDao.getConnection();
+				ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
+				DataSource ds = (DataSource)context.getBean("dataSource");
+				con=ds.getConnection();
 				
 			   String sql="SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
 			   ps=con.prepareStatement(sql);
