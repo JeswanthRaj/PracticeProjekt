@@ -24,6 +24,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONArray;
 
+import com.jms.projekt.dao.JdbcDao;
 import com.jms.projekt.model.Element;
 import com.jms.projekt.utility.JSONUtility;
 
@@ -37,15 +38,12 @@ public class ProjektServiceJdbcBean {
 	@Path("/all")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public String getAllElements() {
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/DB";
 		Connection con = null;
 		PreparedStatement ps = null;
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, "root", "");
+			con = JdbcDao.getConnection();
 			String sql = "SELECT * FROM ELEMENT";
 			ps = con.prepareStatement(sql);
 			ResultSet rs = ps.executeQuery();
@@ -56,9 +54,7 @@ public class ProjektServiceJdbcBean {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} finally {
+		}  finally {
 			try {
 				if (null != ps && !ps.isClosed())
 					ps.close();
@@ -80,15 +76,12 @@ public class ProjektServiceJdbcBean {
 	@Path("{id}")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public String getElement(@PathParam("id") int id) {
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/DB";
 		Connection con = null;
 		PreparedStatement ps = null;
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, "root", "");
+			con = JdbcDao.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, id);
@@ -98,8 +91,6 @@ public class ProjektServiceJdbcBean {
 				jArray = jsonUtility.toJSONArray(rs);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -126,15 +117,12 @@ public class ProjektServiceJdbcBean {
 			@DefaultValue("1") @QueryParam("from") int from,
 			@DefaultValue("2") @QueryParam("to") int to) {
 		System.out.println("from::" + from + "to::" + to);
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/DB";
 		Connection con = null;
 		PreparedStatement ps = null;
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, "root", "");
+			con = JdbcDao.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID BETWEEN ? AND ?";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, from);
@@ -146,8 +134,6 @@ public class ProjektServiceJdbcBean {
 				jArray = jsonUtility.toJSONArray(rs);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -172,16 +158,13 @@ public class ProjektServiceJdbcBean {
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 	public String getElementByName(
 			@DefaultValue("GOLD") @QueryParam("name") String name) {
-
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/DB";
+		
 		Connection con = null;
 		PreparedStatement ps = null;
 		JSONArray jArray = new JSONArray();
 		String jsonResponse = null;
 		try {
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, "root", "");
+			con = JdbcDao.getConnection();
 			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_NAME = ?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, name);
@@ -192,8 +175,6 @@ public class ProjektServiceJdbcBean {
 				jArray = jsonUtility.toJSONArray(rs);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			try {
@@ -219,16 +200,13 @@ public class ProjektServiceJdbcBean {
 	@Path("/add")
 	public Response addElement(String request) {
 		System.out.println("Element Add!" + request);
-		String driver = "com.mysql.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/DB";
 		ObjectMapper jObj = new ObjectMapper();
 		Connection con = null;
 		PreparedStatement ps = null;
 		try {
 			Element element = jObj.readValue(request, Element.class);
 
-			Class.forName(driver);
-			con = DriverManager.getConnection(url, "root", "");
+			con = JdbcDao.getConnection();
 			String sql = "INSERT INTO ELEMENT (ELEMENT_ID,ELEMENT_NAME,ELEMENT_TYPE,ELEMENT_VALUE,LUD) VALUES (?,?,?,?,CURRENT_TIMESTAMP)";
 			ps = con.prepareStatement(sql);
 			ps.setInt(1, element.getElementId());
@@ -249,10 +227,6 @@ public class ProjektServiceJdbcBean {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return Response.status(500).entity(e.getMessage()).build();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return Response.status(500).entity(e.getMessage()).build();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -268,16 +242,13 @@ public class ProjektServiceJdbcBean {
 		@Path("/update")
 		public Response updateElement(String request) {
 			System.out.println("Element Update!" + request);
-			String driver = "com.mysql.jdbc.Driver";
-			String url = "jdbc:mysql://localhost:3306/DB";
 			ObjectMapper jObj = new ObjectMapper();
 			Connection con = null;
 			PreparedStatement ps = null;
 			try {
 				Element element = jObj.readValue(request, Element.class);
 
-				Class.forName(driver);
-				con = DriverManager.getConnection(url, "root", "");
+				con = JdbcDao.getConnection();
 				
 			   String sql="SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
 			   ps=con.prepareStatement(sql);
@@ -302,10 +273,6 @@ public class ProjektServiceJdbcBean {
 				e.printStackTrace();
 				return Response.status(500).entity(e.getMessage()).build();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return Response.status(500).entity(e.getMessage()).build();
-			} catch (ClassNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 				return Response.status(500).entity(e.getMessage()).build();
