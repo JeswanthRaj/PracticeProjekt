@@ -1,15 +1,10 @@
 package com.jms.projekt.service;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -23,19 +18,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jettison.json.JSONArray;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
 
 import com.jms.projekt.exception.NoElementFoundException;
 import com.jms.projekt.mapper.ElementMapper;
 import com.jms.projekt.model.Element;
-import com.jms.projekt.utility.JSONUtility;
+import com.jms.projekt.sql.SQLConstants;
 
 @Path("element")
 public class ProjektServiceJdbcBean {
@@ -46,9 +37,7 @@ public class ProjektServiceJdbcBean {
 	@GET
 	@Path("/all")
 	@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-	public List getAllElements() {
-		Connection con = null;
-		PreparedStatement ps = null;
+	public List<Element> getAllElements() {
 		List<Map<String, Object>> elements=null;
 		List<Element> elementList=new ArrayList<Element>();
 
@@ -56,7 +45,7 @@ public class ProjektServiceJdbcBean {
 
 			JdbcTemplate jdbcTemplate=context.getBean("jdbcTemplate",JdbcTemplate.class);
 			
-			String sql = "SELECT * FROM ELEMENT";
+			String sql = SQLConstants.GET_ALL_ELEMENTS;
 			elements=jdbcTemplate.queryForList(sql);
 			
 			ElementMapper eMapper=new ElementMapper();
@@ -73,7 +62,7 @@ public class ProjektServiceJdbcBean {
 		
 			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 			JdbcTemplate jdbcTemplate = context.getBean("jdbcTemplate",JdbcTemplate.class);
-			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
+			String sql = SQLConstants.GET_ELEMENT_BY_ID;
 			Element element = jdbcTemplate.queryForObject(sql,new Object[] {id},new ElementMapper());
 			
 		return element;
@@ -89,7 +78,7 @@ public class ProjektServiceJdbcBean {
 		System.out.println("from::" + from + "to::" + to);
 			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 			JdbcTemplate jdbcTemplate=context.getBean("jdbcTemplate",JdbcTemplate.class);
-			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_ID BETWEEN ? AND ?";
+			String sql = SQLConstants.GET_ELEMENT_BY_RANGE;
 
 			List<Map<String,Object>> elements = jdbcTemplate.queryForList(sql,new Object[]{from,to});
 			ElementMapper eMapper=new ElementMapper();
@@ -107,7 +96,7 @@ public class ProjektServiceJdbcBean {
 		
 			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 			JdbcTemplate jdbcTemplate=context.getBean("jdbcTemplate",JdbcTemplate.class);
-			String sql = "SELECT * FROM ELEMENT WHERE ELEMENT_NAME = ?";
+			String sql = SQLConstants.GET_ELEMENT_BY_NAME;
 			
 			List<Map<String,Object>> elements = jdbcTemplate.queryForList(sql,new Object[]{name});
 			ElementMapper eMapper=new ElementMapper();
@@ -134,7 +123,7 @@ public class ProjektServiceJdbcBean {
 			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 			JdbcTemplate jdbcTemplate = context.getBean("jdbcTemplate",JdbcTemplate.class);
 			
-			String sql = "INSERT INTO ELEMENT (ELEMENT_ID,ELEMENT_NAME,ELEMENT_TYPE,ELEMENT_VALUE,LUD) VALUES (?,?,?,?,CURRENT_TIMESTAMP)";
+			String sql = SQLConstants.ADD_ELEMENT;
 			jdbcTemplate.update(sql, new Object[]{
 					element.getElementId(),
 					element.getElementName(),
@@ -163,10 +152,10 @@ public class ProjektServiceJdbcBean {
 				ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 				JdbcTemplate jdbcTemplate = context.getBean("jdbcTemplate",JdbcTemplate.class);
 				
-			   String sql="SELECT * FROM ELEMENT WHERE ELEMENT_ID=?";
+			   String sql=SQLConstants.GET_ELEMENT_BY_ID;
 			   List<Map<String,Object>> rows=jdbcTemplate.queryForList(sql,new Object[]{element.getElementId()});	
 				if(null!=rows && !rows.isEmpty()){
-				sql = "UPDATE ELEMENT SET ELEMENT_NAME=?,ELEMENT_TYPE=?, ELEMENT_VALUE=?, LUD=CURRENT_TIMESTAMP WHERE ELEMENT_ID=?";
+				sql = SQLConstants.UPDATE_ELEMENT;
 				jdbcTemplate.update(sql,new Object[]{element.getElementName(),element.getElementType(),element.getElementValue(),element.getElementId()});
 				}
 				
@@ -181,7 +170,7 @@ public class ProjektServiceJdbcBean {
 		public Response deleteElementById(@PathParam("id") int id) throws NoElementFoundException{
 			ApplicationContext context=new ClassPathXmlApplicationContext("spring.xml");
 			JdbcTemplate jdbcTemplate=context.getBean("jdbcTemplate",JdbcTemplate.class);
-			String sql="DELETE FROM ELEMENT WHERE ELEMENT_ID=?";
+			String sql=SQLConstants.DELETE_ELEMENT;
 			jdbcTemplate.update(sql,new Object[]{id});
 	
 			return Response.status(200).entity("Element Deleted!!!").build();

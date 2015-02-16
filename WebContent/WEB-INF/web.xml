@@ -13,7 +13,7 @@
   <servlet-name>ProjektServlet</servlet-name>
   <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
   <init-param>
-  <param-name>com.jms.projekt.service</param-name>
+  <param-name>com.jms.projekt.controller</param-name>
   <param-value>PracticeProjekt</param-value>
   </init-param>
   </servlet>
